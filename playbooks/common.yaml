@@ -1,7 +1,7 @@
 ---
 - name: install initial packages on all boxes
   hosts: all
-  remote_user: ansible5
+  remote_user: ansible
   become: yes
 
   tasks:
@@ -14,14 +14,34 @@
       - man-pages
       - mlocate
       - bind-utils
+
+  tasks:
   - name: install ntp packages
     yum:
       name: ntp
       state: latest
   - name: configure ntp
     template:
-      src: /ansible5/conf/ntpd.j2
-      dest: /etc/ntpd.conf
-    notify: restart ntp
-  - name: start ntp
-    state:
+      src: /ansible/templates/ntp.conf.j2
+      dest: /etc/ntp.conf
+    notify: restart ntpd
+  - name: start ntpd
+    service:
+      name: ntpd
+      state: started
+  handlers:
+    - name: restart ntpd
+      service:
+        name: ntpd
+        state: restarted
+
+  tasks:
+  - name: manage resolv.conf
+    template:
+      src: /ansible/templates/resolv.conf.j2
+      dest: /etc/resolv.conf
+  - name: stop Network Manager
+    service:
+      name: NetworkManager
+      state: stopped
+      enabled: no
