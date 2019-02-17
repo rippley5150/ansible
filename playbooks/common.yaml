@@ -24,4 +24,4 @@
       dest: /etc/ntpd.conf
     notify: restart ntp
   - name: start ntp
-    state: 
+    state:
